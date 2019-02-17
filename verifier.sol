@@ -1,86 +1,9 @@
-const fs = require("fs");
-const crypto = require("crypto");
-const {stringifyBigInts, unstringifyBigInts} = require("./src/stringifybigint.js");
-
-
-
-const fload = (fname) => unstringifyBigInts(JSON.parse(fs.readFileSync(fname, "utf8")));
-const fdump = (fname, data) => fs.writeFileSync(fname, JSON.stringify(stringifyBigInts(data)), "utf8");
-
-
-// function serializePK(vk_verifier_file) {
-//   vk_verifier=fload(vk_verifier_file);
-//   let data = `
-//         vk.alfa1 = Pairing.G1Point(${vk_verifier["vk_alfa_1"][0]}, ${vk_verifier["vk_alfa_1"][1]});
-//         vk.beta2 = Pairing.G2Point([${vk_verifier["vk_beta_2"][0][0]},${vk_verifier["vk_beta_2"][0][1]}], [${vk_verifier["vk_beta_2"][1][0]},${vk_verifier["vk_beta_2"][1][1]}]);
-//         vk.gamma2 = Pairing.G2Point([${vk_verifier["vk_gamma_2"][0][0]},${vk_verifier["vk_gamma_2"][0][1]}], [${vk_verifier["vk_gamma_2"][1][0]},${vk_verifier["vk_gamma_2"][1][1]}]);
-//         vk.delta2 = Pairing.G2Point([${vk_verifier["vk_delta_2"][0][0]},${vk_verifier["vk_delta_2"][0][1]}], [${vk_verifier["vk_delta_2"][1][0]},${vk_verifier["vk_delta_2"][1][1]}]);
-//         vk.IC = new Pairing.G1Point[](${vk_verifier["nPublic"]+1});`
-  
-//   for (let i=0; i<=vk_verifier["nPublic"]; i++){
-//     data+=`
-//         vk.IC[${i}] = Pairing.G1Point(${vk_verifier["IC"][i][0]}, ${vk_verifier["IC"][i][1]});`
-//   }
-//   return data;
-  
-// }
-
-
-function serializePK(vk_verifier_file) {
-    verificationKey=fload(vk_verifier_file);
-    let template = `
-        vk.alfa1 = Pairing.G1Point(<%vk_alfa1%>);
-        vk.beta2 = Pairing.G2Point(<%vk_beta2%>);
-        vk.gamma2 = Pairing.G2Point(<%vk_gamma2%>);
-        vk.delta2 = Pairing.G2Point(<%vk_delta2%>);
-        vk.IC = new Pairing.G1Point[](<%vk_ic_length%>);
-        <%vk_ic_pts%>
-    `
-    const vkalfa1_str = `${verificationKey.vk_alfa_1[0].toString()},`+
-                        `${verificationKey.vk_alfa_1[1].toString()}`;
-    template = template.replace("<%vk_alfa1%>", vkalfa1_str);
-
-    const vkbeta2_str = `[${verificationKey.vk_beta_2[0][1].toString()},`+
-                         `${verificationKey.vk_beta_2[0][0].toString()}], `+
-                        `[${verificationKey.vk_beta_2[1][1].toString()},` +
-                         `${verificationKey.vk_beta_2[1][0].toString()}]`;
-    template = template.replace("<%vk_beta2%>", vkbeta2_str);
-
-    const vkgamma2_str = `[${verificationKey.vk_gamma_2[0][1].toString()},`+
-                          `${verificationKey.vk_gamma_2[0][0].toString()}], `+
-                         `[${verificationKey.vk_gamma_2[1][1].toString()},` +
-                          `${verificationKey.vk_gamma_2[1][0].toString()}]`;
-    template = template.replace("<%vk_gamma2%>", vkgamma2_str);
-
-    const vkdelta2_str = `[${verificationKey.vk_delta_2[0][1].toString()},`+
-                          `${verificationKey.vk_delta_2[0][0].toString()}], `+
-                         `[${verificationKey.vk_delta_2[1][1].toString()},` +
-                          `${verificationKey.vk_delta_2[1][0].toString()}]`;
-    template = template.replace("<%vk_delta2%>", vkdelta2_str);
-
-    // The points
-
-    template = template.replace("<%vk_input_length%>", (verificationKey.IC.length-1).toString());
-    template = template.replace("<%vk_ic_length%>", verificationKey.IC.length.toString());
-    let vi = "";
-    for (let i=0; i<verificationKey.IC.length; i++) {
-        if (vi != "") vi = vi + "        ";
-        vi = vi + `vk.IC[${i}] = Pairing.G1Point(${verificationKey.IC[i][0].toString()},`+
-                                                `${verificationKey.IC[i][1].toString()});\n`;
-    }
-    template = template.replace("<%vk_ic_pts%>", vi);
-
-    return template;
-}
-
-
-
-let data=`//
+//
 // Copyright 2017 Christian Reitwiessner
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-pragma solidity >=0.5.2;
+pragma solidity ^0.4.17;
 library Pairing {
     struct G1Point {
         uint X;
@@ -92,11 +15,11 @@ library Pairing {
         uint[2] Y;
     }
     /// @return the generator of G1
-    function P1() pure internal returns (G1Point memory) {
+    function P1() pure internal returns (G1Point) {
         return G1Point(1, 2);
     }
     /// @return the generator of G2
-    function P2() pure internal returns (G2Point memory) {
+    function P2() pure internal returns (G2Point) {
         // Original code point
         return G2Point(
             [11559732032986387107991004021392285783925812861821192530917403151452391805634,
@@ -116,7 +39,7 @@ library Pairing {
 */
     }
     /// @return the negation of p, i.e. p.addition(p.negate()) should be zero.
-    function negate(G1Point memory p) pure internal returns (G1Point memory) {
+    function negate(G1Point p) pure internal returns (G1Point) {
         // The prime q in the base field F_q for G1
         uint q = 21888242871839275222246405745257275088696311157297823662689037894645226208583;
         if (p.X == 0 && p.Y == 0)
@@ -124,7 +47,7 @@ library Pairing {
         return G1Point(p.X, q - (p.Y % q));
     }
     /// @return the sum of two points of G1
-    function addition(G1Point memory p1, G1Point memory p2) view internal returns (G1Point memory r) {
+    function addition(G1Point p1, G1Point p2) view internal returns (G1Point r) {
         uint[4] memory input;
         input[0] = p1.X;
         input[1] = p1.Y;
@@ -140,7 +63,7 @@ library Pairing {
     }
     /// @return the product of a point on G1 and a scalar, i.e.
     /// p == p.scalar_mul(1) and p.addition(p) == p.scalar_mul(2) for all points p.
-    function scalar_mul(G1Point memory p, uint s) view internal returns (G1Point memory r) {
+    function scalar_mul(G1Point p, uint s) view internal returns (G1Point r) {
         uint[3] memory input;
         input[0] = p.X;
         input[1] = p.Y;
@@ -157,7 +80,7 @@ library Pairing {
     /// e(p1[0], p2[0]) *  .... * e(p1[n], p2[n]) == 1
     /// For example pairing([P1(), P1().negate()], [P2(), P2()]) should
     /// return true.
-    function pairing(G1Point[] memory p1, G2Point[] memory p2) view internal returns (bool) {
+    function pairing(G1Point[] p1, G2Point[] p2) view internal returns (bool) {
         require(p1.length == p2.length);
         uint elements = p1.length;
         uint inputSize = elements * 6;
@@ -182,7 +105,7 @@ library Pairing {
         return out[0] != 0;
     }
     /// Convenience method for a pairing check for two pairs.
-    function pairingProd2(G1Point memory a1, G2Point memory a2, G1Point memory b1, G2Point memory b2) view internal returns (bool) {
+    function pairingProd2(G1Point a1, G2Point a2, G1Point b1, G2Point b2) view internal returns (bool) {
         G1Point[] memory p1 = new G1Point[](2);
         G2Point[] memory p2 = new G2Point[](2);
         p1[0] = a1;
@@ -193,9 +116,9 @@ library Pairing {
     }
     /// Convenience method for a pairing check for three pairs.
     function pairingProd3(
-            G1Point memory a1, G2Point memory a2,
-            G1Point memory b1, G2Point memory b2,
-            G1Point memory c1, G2Point memory c2
+            G1Point a1, G2Point a2,
+            G1Point b1, G2Point b2,
+            G1Point c1, G2Point c2
     ) view internal returns (bool) {
         G1Point[] memory p1 = new G1Point[](3);
         G2Point[] memory p2 = new G2Point[](3);
@@ -209,10 +132,10 @@ library Pairing {
     }
     /// Convenience method for a pairing check for four pairs.
     function pairingProd4(
-            G1Point memory a1, G2Point memory a2,
-            G1Point memory b1, G2Point memory b2,
-            G1Point memory c1, G2Point memory c2,
-            G1Point memory d1, G2Point memory d2
+            G1Point a1, G2Point a2,
+            G1Point b1, G2Point b2,
+            G1Point c1, G2Point c2,
+            G1Point d1, G2Point d2
     ) view internal returns (bool) {
         G1Point[] memory p1 = new G1Point[](4);
         G2Point[] memory p2 = new G2Point[](4);
@@ -241,19 +164,20 @@ contract Verifier {
         Pairing.G2Point B;
         Pairing.G1Point C;
     }
-    function verifyingDepositKey() pure internal returns (VerifyingKey memory vk) {
-${serializePK("circuit/compiled/Deposit_verification_key.json")}
-    }
+    function verifyingKey() pure internal returns (VerifyingKey vk) {
+        vk.alfa1 = Pairing.G1Point(148350160013641516516065394941017325869945323004954379684920804185393807751,6777192247018640954943263298455924834028829503672188683224846399459539942827);
+        vk.beta2 = Pairing.G2Point([3950649338168012954992532160407061915324917009950812622207476682942984666803,8855928623051960240896239945031590750212896569454775588625105709883890321546], [8890408546858459219889650822610567051291826992757045036962364817981853236142,10363134207872820223032567101113647040964985484926645700270326617996036935056]);
+        vk.gamma2 = Pairing.G2Point([18956512084891275246781833815350963761248013765743873162939612943084634539054,2820271232645360476018121431610815673304992092269947750802541413581472777933], [14516879516219023916337994498927792396827431792609103123314314956791565971630,11705923375182682109915031678720958056983651840935678432845648234649824996571]);
+        vk.delta2 = Pairing.G2Point([6534192974725185215031672777390407669995558977737464648361166851020084750102,12983243756476461760830198459801736520088370378599479506773029530298496970456], [11367183517179255993323115023553016255079281651919157233118371033187713124620,6021383518693654271829936701588342378483694480761255090491347561142118486526]);
+        vk.IC = new Pairing.G1Point[](4);
+        vk.IC[0] = Pairing.G1Point(2167085800222096713180732422457474136538350066703534812900119408276414456225,12162319478867194598275888742443073340035212163654864518464827040090065020874);
+        vk.IC[1] = Pairing.G1Point(14536775687288981221950465179997995816432826696748242165916820966794856082101,20713570724197470100098672302446833435278601422878601706432536129829266847963);
+        vk.IC[2] = Pairing.G1Point(7211386787896200346033717234712184844590696999070388680056803846396624128003,17696067934088922070570870554303324746678305158431052577783813132064499236617);
+        vk.IC[3] = Pairing.G1Point(1281208883758058702403896141959251606869342972377394575862258384368536514539,10637511945353216075520842097501553508296886824481815618485544971705719623783);
 
-    function verifyingTransactionKey() pure internal returns (VerifyingKey memory vk) {
-${serializePK("circuit/compiled/Transaction_verification_key.json")}
     }
-
-    function verifyingWithdrawalKey() pure internal returns (VerifyingKey memory vk) {
-${serializePK("circuit/compiled/Withdrawal_verification_key.json")}
-    }
-
-    function verify(uint[] memory input, Proof memory proof, VerifyingKey memory vk) view internal returns (uint) {
+    function verify(uint[] input, Proof proof) view internal returns (uint) {
+        VerifyingKey memory vk = verifyingKey();
         require(input.length + 1 == vk.IC.length);
         // Compute the linear combination vk_x
         Pairing.G1Point memory vk_x = Pairing.G1Point(0, 0);
@@ -268,12 +192,11 @@ ${serializePK("circuit/compiled/Withdrawal_verification_key.json")}
         )) return 1;
         return 0;
     }
-
-    function verifyDeposit(
-            uint[2] memory a,
-            uint[2][2] memory b,
-            uint[2] memory c,
-            uint[3] memory input
+    function verifyProof(
+            uint[2] a,
+            uint[2][2] b,
+            uint[2] c,
+            uint[3] input
         ) view public returns (bool r) {
         Proof memory proof;
         proof.A = Pairing.G1Point(a[0], a[1]);
@@ -283,58 +206,10 @@ ${serializePK("circuit/compiled/Withdrawal_verification_key.json")}
         for(uint i = 0; i < input.length; i++){
             inputValues[i] = input[i];
         }
-        if (verify(inputValues, proof, verifyingDepositKey()) == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-
-    function verifyTransaction(
-            uint[2] memory a,
-            uint[2][2] memory b,
-            uint[2] memory c,
-            uint[15] memory input
-        ) view public returns (bool r) {
-        Proof memory proof;
-        proof.A = Pairing.G1Point(a[0], a[1]);
-        proof.B = Pairing.G2Point([b[0][0], b[0][1]], [b[1][0], b[1][1]]);
-        proof.C = Pairing.G1Point(c[0], c[1]);
-        uint[] memory inputValues = new uint[](input.length);
-        for(uint i = 0; i < input.length; i++){
-            inputValues[i] = input[i];
-        }
-        if (verify(inputValues, proof, verifyingTransactionKey()) == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    function verifyWithdrawal(
-            uint[2] memory a,
-            uint[2][2] memory b,
-            uint[2] memory c,
-            uint[4] memory input
-        ) view public returns (bool r) {
-        Proof memory proof;
-        proof.A = Pairing.G1Point(a[0], a[1]);
-        proof.B = Pairing.G2Point([b[0][0], b[0][1]], [b[1][0], b[1][1]]);
-        proof.C = Pairing.G1Point(c[0], c[1]);
-        uint[] memory inputValues = new uint[](input.length);
-        for(uint i = 0; i < input.length; i++){
-            inputValues[i] = input[i];
-        }
-        if (verify(inputValues, proof, verifyingWithdrawalKey()) == 0) {
+        if (verify(inputValues, proof) == 0) {
             return true;
         } else {
             return false;
         }
     }
 }
-`;
-
-
-fs.writeFileSync("smart-contract/contracts/Verifier.sol", data, "utf8");
-
