@@ -5,11 +5,12 @@ const pedersen = require("../circomlib/src/pedersenHash.js");
 const babyjub = require("../circomlib/src/babyjub.js");
 const fs = require("fs");
 const crypto = require("crypto");
+const {stringifyBigInts, unstringifyBigInts} = require("../src/stringifybigint.js");
 
 const alt_bn_128_q = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
 
-const fload = (fname) => JSON.parse(fs.readFileSync(fname, "utf8"));
-const fdump = (fname, data) => fs.writeFileSync(fname, JSON.stringify(data, (k, v) => typeof v === 'bigint' ? v.toString() : v), "utf8");
+const fload = (fname) => unstringifyBigInts(JSON.parse(fs.readFileSync(fname, "utf8")));
+const fdump = (fname, data) => fs.writeFileSync(fname, JSON.stringify(stringifyBigInts(data)), "utf8");
 const rbigint = (nbytes) => snarkjs.bigInt.leBuff2int(crypto.randomBytes(nbytes))
 
 
@@ -44,22 +45,22 @@ function shuffle(a) {
 
 const main = async () => {
   try {
-//    const circuit = new snarkjs.Circuit(fload("circuit/compiled/Transaction.json"));
-//    const vk_proof = fload("circuit/compiled/Transaction_proving_key.json");
-//    const vk_verifier = fload("circuit/compiled/Transaction_verification_key.json");
+    const circuit = new snarkjs.Circuit(fload("circuit/compiled/Transaction.json"));
+    const vk_proof = fload("circuit/compiled/Transaction_proving_key.json");
+    const vk_verifier = fload("circuit/compiled/Transaction_verification_key.json");
 
-    const circuitDef = await circom("circuit/Transaction.circom");
-    fdump("circuit/compiled/Transaction.json", circuitDef);
-    const circuit = new snarkjs.Circuit(circuitDef)
+    // const circuitDef = await circom("circuit/Transaction.circom");
+    // fdump("circuit/compiled/Transaction.json", circuitDef);
+    // const circuit = new snarkjs.Circuit(circuitDef)
 
-    tic();
-    const setup = groth.setup(circuit);
-    toc();
+    // tic();
+    // const setup = groth.setup(circuit);
+    // toc();
 
-    const vk_proof = setup.vk_proof;
-    fdump("circuit/compiled/Transaction_proving_key.json", vk_proof);
-    const vk_verifier = setup.vk_verifier;
-    fdump("circuit/compiled/Transaction_verification_key.json", vk_verifier);
+    // const vk_proof = setup.vk_proof;
+    // fdump("circuit/compiled/Transaction_proving_key.json", vk_proof);
+    // const vk_verifier = setup.vk_verifier;
+    // fdump("circuit/compiled/Transaction_verification_key.json", vk_verifier);
 
     const current_address = rbigint(20);
 

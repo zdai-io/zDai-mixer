@@ -8,11 +8,13 @@ const pedersen = require("./circomlib/src/pedersenHash.js");
 const babyjub = require("./circomlib/src/babyjub.js");
 const fs = require("fs");
 const crypto = require("crypto");
+const bigInt = require("big-integer");
+const {stringifyBigInts, unstringifyBigInts} = require("./src/stringifybigint.js");
 
 const alt_bn_128_q = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
 
-const fload = (fname) => JSON.parse(fs.readFileSync(fname, "utf8"));
-const fdump = (fname, data) => fs.writeFileSync(fname, JSON.stringify(data, (k, v) => typeof v === 'bigint' ? v.toString() : v), "utf8");
+const fload = (fname) => unstringifyBigInts(JSON.parse(fs.readFileSync(fname, "utf8")));
+const fdump = (fname, data) => fs.writeFileSync(fname, JSON.stringify(stringifyBigInts(data)), "utf8");
 const rbigint = (nbytes) => snarkjs.bigInt.leBuff2int(crypto.randomBytes(nbytes))
 
 
@@ -48,8 +50,31 @@ function shuffle(a) {
 
 const web3 = new Web3(Web3.providers.HttpProvider('http://localhost:8545'))
 
+const sTransaction = {
+  circuit: new snarkjs.Circuit(fload("circuit/compiled/Transaction.json")),
+  vk_proof: fload("circuit/compiled/Transaction_proving_key.json"),
+  vk_verifier: fload("circuit/compiled/Transaction_verification_key.json")
+};
 
-function makeDeposit(contract, account, balance) {
+const sDeposit = {
+  circuit: new snarkjs.Circuit(fload("circuit/compiled/Deposit.json")),
+  vk_proof: fload("circuit/compiled/Deposit_proving_key.json"),
+  vk_verifier: fload("circuit/compiled/Deposit_verification_key.json")
+};
+
+const sWithdrawal = {
+  circuit: new snarkjs.Circuit(fload("circuit/compiled/Withdrawal.json")),
+  vk_proof: fload("circuit/compiled/Withdrawal_proving_key.json"),
+  vk_verifier: fload("circuit/compiled/Withdrawal_verification_key.json")
+};
+
+function addrToInt(addr) {
+  return bigInt(addr.substr(2), "16").value;
+}
+
+function makeDeposit(contract, _account, _balance) {
+  const account = addrToInt(_account);
+  const balance = BigInt(_balance);
   const salt = rbigint(14);
   const tx = {
     balance: balance,
@@ -57,6 +82,19 @@ function makeDeposit(contract, account, balance) {
     owner: account
   };
   const hash = serializeAndHashUTXO(tx);
+
+  const input = {
+    balance: balance,
+    salt: salt,
+    owner: account,
+    hash: hash
+  };
+
+
+  console.log(input);
+  const witness = sDeposit.circuit.calculateWitness(input);
+  const {proof, publicSignals} = groth.genProof(sDeposit.vk_proof, witness);
+  console.log(publicSignals);
 }
 
 const main = async () => {
@@ -67,6 +105,7 @@ const main = async () => {
   console.log(res);
   res = await zDai.methods.utxo(100).call();
   console.log(res);
+  makeDeposit(zDai, accounts[0], web3.utils.toWei("0.01"));
 
 
 

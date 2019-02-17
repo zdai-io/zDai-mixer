@@ -5,11 +5,12 @@ const pedersen = require("../circomlib/src/pedersenHash.js");
 const babyjub = require("../circomlib/src/babyjub.js");
 const fs = require("fs");
 const crypto = require("crypto");
+const {stringifyBigInts, unstringifyBigInts} = require("../src/stringifybigint.js");
 
 const alt_bn_128_q = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
 
-const fload = (fname) => JSON.parse(fs.readFileSync(fname, "utf8"));
-const fdump = (fname, data) => fs.writeFileSync(fname, JSON.stringify(data, (k, v) => typeof v === 'bigint' ? v.toString() : v), "utf8");
+const fload = (fname) => unstringifyBigInts(JSON.parse(fs.readFileSync(fname, "utf8")));
+const fdump = (fname, data) => fs.writeFileSync(fname, JSON.stringify(stringifyBigInts(data)), "utf8");
 const rbigint = (nbytes) => snarkjs.bigInt.leBuff2int(crypto.randomBytes(nbytes))
 
 
