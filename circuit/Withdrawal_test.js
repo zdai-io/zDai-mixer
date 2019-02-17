@@ -46,12 +46,12 @@ function shuffle(a) {
 
 const main = async () => {
   try {
-   const circuit = new snarkjs.Circuit(fload("circuit/compiled/Withdrawal.json"));
-   const vk_proof = fload("circuit/compiled/Withdrawal_proving_key.json");
-   const vk_verifier = fload("circuit/compiled/Withdrawal_verification_key.json");
+   const circuit = new snarkjs.Circuit(fload("compiled/Withdrawal.json"));
+   const vk_proof = fload("compiled/Withdrawal_proving_key.json");
+   const vk_verifier = fload("compiled/Withdrawal_verification_key.json");
 
     // const circuitDef = await circom("circuit/Withdrawal.circom");
-    // fdump("circuit/compiled/Withdrawal.json", circuitDef);
+    // fdump("compiled/Withdrawal.json", circuitDef);
     // const circuit = new snarkjs.Circuit(circuitDef)
 
     // tic();
@@ -59,9 +59,9 @@ const main = async () => {
     // toc();
 
     // const vk_proof = setup.vk_proof;
-    // fdump("circuit/compiled/Withdrawal_proving_key.json", vk_proof);
+    // fdump("compiled/Withdrawal_proving_key.json", vk_proof);
     // const vk_verifier = setup.vk_verifier;
-    // fdump("circuit/compiled/Withdrawal_verification_key.json", vk_verifier);
+    // fdump("compiled/Withdrawal_verification_key.json", vk_verifier);
 
     const withdrawal = {
         balance: rbigint(16),

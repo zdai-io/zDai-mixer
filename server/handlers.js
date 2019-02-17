@@ -5,14 +5,17 @@ const pedersen = require("../circomlib/src/pedersenHash.js");
 const babyjub = require("../circomlib/src/babyjub.js");
 const fs = require("fs");
 const crypto = require("crypto");
+const {stringifyBigInts, unstringifyBigInts} = require("../src/stringifybigint.js");
 
 const alt_bn_128_q = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
 
 let transationSnark, depositSnark, withdrawalSnark;
 
-const fload = (fname) => JSON.parse(fs.readFileSync(fname, "utf8"));
-const fdump = (fname, data) => fs.writeFileSync(fname, JSON.stringify(data, (k, v) => typeof v === 'bigint' ? v.toString() : v), "utf8");
+const fload = (fname) => unstringifyBigInts(JSON.parse(fs.readFileSync(fname, "utf8")));
+const fdump = (fname, data) => fs.writeFileSync(fname, JSON.stringify(stringifyBigInts(data)), "utf8");
 const rbigint = (nbytes) => snarkjs.bigInt.leBuff2int(crypto.randomBytes(nbytes))
+const stringify = (data) => JSON.stringify(stringifyBigInts(data));
+const unstringify = (data) => unstringifyBigInts(data);
 
 function serializeAndHashUTXO(tx) {
   console.log(tx);
@@ -41,6 +44,8 @@ async function setupSnark(filename) {
   fdump("circuit/compiled/" + filename + "_proving_key.json", prover);
   fdump("circuit/compiled/" + filename + "_verification_key.json", verifier);
 
+  console.log("Generated " + filename + " snark");
+
   return { circuit, prover, verifier }
 }
 
@@ -58,13 +63,14 @@ function proveSnark(snark, input) {
 }
 
 function verifySnark(snark, proof, publicSignals) {
-   return groth.isValid(snark.verifier, proof, publicSignals);
+  console.log(proof, publicSignals)
+  return groth.isValid(snark.verifier, proof, publicSignals);
 }
 
-async function setup() {
-  transationSnark = await setupSnark("Transaction");
-  depositSnark = await setupSnark("Deposit");
-  withdrawalSnark = await setupSnark("Withdrawal");
+function setup() {
+  transationSnark = setupSnark("Transaction");
+  depositSnark = setupSnark("Deposit");
+  withdrawalSnark = setupSnark("Withdrawal");
 }
 
 function load() {
@@ -78,7 +84,7 @@ function proveDeposit(tx) {
   return proveSnark(depositSnark, tx);
 }
 
-function proveWithdraw(tx) {
+function proveWithdrawal(tx) {
   tx.hash = serializeAndHashUTXO(tx);  
   return proveSnark(withdrawalSnark, tx);
 }
@@ -115,8 +121,20 @@ function proveTransaction(owner, txIn1, txIn2, txOut1, txOut2, fakeHashes) {
   return proveSnark(transactionSnark, input);
 }
 
+function verifyDeposit(data) {
+  return verifySnark(depositSnark, data.proof, data.publicSignals);
+}
 
-module.exports = { load, setup, proveDeposit, proveWithdraw, proveTransaction, verifySnark };
+function verifyWithdrawal(data) {
+  return verifySnark(withdrawalSnark, data.proof, data.publicSignals);
+}
+
+function verifyTransaction(data) {
+  return verifySnark(transactionSnark, data.proof, data.publicSignals);
+}
+
+
+module.exports = { load, setup, proveDeposit, proveWithdrawal, proveTransaction, verifySnark, stringify, unstringify, verifyTransaction, verifyDeposit, verifyWithdrawal }
 
 
 
