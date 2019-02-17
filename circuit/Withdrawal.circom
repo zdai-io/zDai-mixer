@@ -4,14 +4,14 @@ template Withdrawal() {
   signal input balance;
   signal input salt
   signal input owner;
-  signal output hash;
+  signal input hash;
 
   component hasher = UTXOHasher();
 
   hasher.balance <== balance;
   hasher.salt <== salt;
   hasher.owner <== owner;
-  hash <== hasher.hash;
+  hash === hasher.hash;
 
 }
 

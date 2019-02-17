@@ -3,7 +3,7 @@ include "UTXOHasher.circom";
 template Deposit() {
   signal input balance;
   signal input owner;
-  signal output hash;
+  signal input hash;
 
   signal private input salt
 
@@ -12,7 +12,7 @@ template Deposit() {
   hasher.balance <== balance;
   hasher.salt <== salt;
   hasher.owner <== owner;
-  hash <== hasher.hash;
+  hash === hasher.hash;
 
 }
 

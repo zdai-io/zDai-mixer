@@ -27,7 +27,6 @@ const {tic, toc} = (function(){
 })();
 
 function serializeAndHashUTXO(tx) {
-  console.log(tx)
   const b = Buffer.concat([snarkjs.bigInt(tx.balance).leInt2Buff(30), snarkjs.bigInt(tx.salt).leInt2Buff(14), snarkjs.bigInt(tx.owner).leInt2Buff(20)]);
   const h = pedersen.hash(b);
   const hP = babyjub.unpackPoint(h);
@@ -45,12 +44,12 @@ function shuffle(a) {
 
 const main = async () => {
   try {
-//    const circuit = new snarkjs.Circuit(fload("circuit/build/Transaction.json"));
-//    const vk_proof = fload("circuit/build/Transaction_proving_key.json");
-//    const vk_verifier = fload("circuit/build/Transaction_verification_key.json");
+//    const circuit = new snarkjs.Circuit(fload("circuit/compiled/Transaction.json"));
+//    const vk_proof = fload("circuit/compiled/Transaction_proving_key.json");
+//    const vk_verifier = fload("circuit/compiled/Transaction_verification_key.json");
 
     const circuitDef = await circom("circuit/Transaction.circom");
-    fdump("circuit/build/Transaction.json", circuitDef);
+    fdump("circuit/compiled/Transaction.json", circuitDef);
     const circuit = new snarkjs.Circuit(circuitDef)
 
     tic();
@@ -58,9 +57,9 @@ const main = async () => {
     toc();
 
     const vk_proof = setup.vk_proof;
-    fdump("circuit/build/Transaction_proving_key.json", vk_proof);
+    fdump("circuit/compiled/Transaction_proving_key.json", vk_proof);
     const vk_verifier = setup.vk_verifier;
-    fdump("circuit/build/Transaction_verification_key.json", vk_proof);
+    fdump("circuit/compiled/Transaction_verification_key.json", vk_verifier);
 
     const current_address = rbigint(20);
 

@@ -1,0 +1,56 @@
+{
+  "name": "security-token",
+  "version": "1.0.0",
+  "description": "Security erc20 compatible token",
+  "scripts": {
+    "dist": "truffle-flattener ./contracts/SecurityToken.sol > dist.sol",
+    "test": "scripts/test.sh",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:sol": "solium -d .",
+    "lint:sol:fix": "solium -d . --fix",
+    "lint:all": "npm run lint && npm run lint:sol",
+    "lint:all:fix": "npm run lint:fix && npm run lint:sol:fix",
+    "console": "truffle console",
+    "coverage": "scripts/coverage.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BANKEX/security-token.git"
+  },
+  "bugs": {
+    "url": "https://github.com/BANKEX/security-token/issues"
+  },
+  "homepage": "https://github.com/BANKEX/security-token#readme",
+  "keywords": [
+    "solidity",
+    "ethereum",
+    "smart",
+    "contracts",
+    "security",
+    "token"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "coveralls": "^2.13.1",
+    "eslint": "^4.11.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "ethereumjs-testrpc": "^6.0.1",
+    "ethereumjs-util": "^5.1.2",
+    "openzeppelin-solidity": "2.1.1",
+    "solc": "0.5.2",
+    "solidity-coverage": "^0.5.11",
+    "solium": "^1.1.2",
+    "truffle": "^5.0.1",
+    "truffle-hdwallet-provider": "0.0.3"
+  },
+  "dependencies": {
+    "dotenv": "^4.0.0",
+    "ethjs-abi": "^0.2.1"
+  }
+}
