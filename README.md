@@ -140,3 +140,4 @@ Here are just 3 transactions now: deposit, transfer and withdrawal.
 - ETHDenver Application: https://kauri.io/article/4c026927f1cc4ed29d5a0e95ba3afbf8/v1/zdai.io-confidential-transactions-on-zksnarks
 - Backend (with SNARK prover), Solidity smart contract is placed there: https://github.com/snjax/zDai-mixer/tree/master/circuit
 - Burner wallet with improved functionality: https://github.com/poma/burner-wallet
+- Smart Contract: https://blockscout.com/poa/sokol/address/0x97c931f57e2b1582d629fb52e0aaa82b7a19c9f0/transactions
