@@ -1,9 +1,8 @@
-# zDai.io - confidential Dai on Burner wallet
+# zDai.io - confidential Dai transactions on Burner wallet
 
 ## Idea
 
 ### What problem do you solve?
-
 
 We add a privacy layer to the burner wallet running on the xDai sidechain. 
 
@@ -73,6 +72,18 @@ We are bringing privacy to [Burner wallet](https://xdai.io) (all functionality i
 - Fork burner
 
 - extra tool
+
+## DEMO:
+
+## Worked public version of Wallet: [zDai.io](zDai.io)
+
+### Contract Deploy:
+![Contract_Deploy](https://github.com/snjax/zDai-mixer/blob/master/Demo/COntract_Deploy.jpeg)
+
+### Sokol testnet transaction
+
+![Sokol testnet transaction](https://github.com/snjax/zDai-mixer/blob/master/Demo/Sokol-test.png)
+
 
 ### TBD & Future steps:
 
