@@ -27,10 +27,22 @@ process.stdin.setEncoding('utf8');
 
 
 
-const sDeposit = {
-  circuit: new snarkjs.Circuit(fload("circuit/compiled/Deposit.json")),
-  vk_proof: fload("circuit/compiled/Deposit_proving_key.json"),
-  vk_verifier: fload("circuit/compiled/Deposit_verification_key.json")
+const snarks = {
+  "Transaction": {
+    circuit: new snarkjs.Circuit(fload("circuit/compiled/Transaction.json")),
+    vk_proof: fload("circuit/compiled/Transaction_proving_key.json"),
+    vk_verifier: fload("circuit/compiled/Transaction_verification_key.json")
+  },
+  "Deposit": {
+    circuit: new snarkjs.Circuit(fload("circuit/compiled/Deposit.json")),
+    vk_proof: fload("circuit/compiled/Deposit_proving_key.json"),
+    vk_verifier: fload("circuit/compiled/Deposit_verification_key.json")
+  },
+  "Withdrawal": {
+    circuit: new snarkjs.Circuit(fload("circuit/compiled/Withdrawal.json")),
+    vk_proof: fload("circuit/compiled/Withdrawal_proving_key.json"),
+    vk_verifier: fload("circuit/compiled/Withdrawal_verification_key.json")
+  }
 };
 
 function generatecall(proof, public) {
@@ -51,8 +63,10 @@ function generatecall(proof, public) {
 
 
 process.stdin.on('data', function(chunk) {
-  const input = unstringifyBigInts(JSON.parse(chunk));
-  const witness = sDeposit.circuit.calculateWitness(input);
-  const {proof, publicSignals} = groth.genProof(sDeposit.vk_proof, witness);
+  const data = unstringifyBigInts(JSON.parse(chunk));
+  const snark = snarks[data[0]];
+  const input = data[1];
+  const witness = snark.circuit.calculateWitness(input);
+  const {proof, publicSignals} = groth.genProof(snark.vk_proof, witness);
   console.log(generatecall(proof, publicSignals));
 });
