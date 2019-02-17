@@ -1,10 +1,31 @@
 # zDai.io - confidential Dai transactions on Burner wallet
 
+
+  * [Idea](#idea)
+    + [What problem do you solve?](#what-problem-do-you-solve)
+    + [Why is it important?](#why-is-it-important)
+    + [Why did we choose to work on the xDAI chain?](#why-did-we-choose-to-work-on-the-xdai-chain)
+    + [What will happen to the project after hackathon?](#what-will-happen-to-the-project-after-hackathon)
+    + [Zero Knowledge Challenges accepted :sunglasses:](#zero-knowledge-challenges-accepted--sunglasses)
+  * [User-flow](#user-flow)
+    + [Steps:](#steps)
+    + [What we'he has done:](#what-we-he-has-done)
+  * [DEMO:](#demo)
+  * [Worked public version of Wallet: [zDai.io](zDai.io)](#worked-public-version-of-wallet---zdaiio--zdaiio)
+    + [Contract Deploy:](#contract-deploy)
+    + [Sokol testnet transaction](#sokol-testnet-transaction)
+    + [TBD & Future steps:](#tbd---future-steps)
+  * [Tech Scpec](#tech-scpec)
+    + [Tests:](#tests)
+  * [Tech spec:](#tech-spec)
+    + [Output:](#output)
+  * [Links:](#links)
+
 ## Idea
 
 ### What problem do you solve?
 
-We add a privacy layer to the burner wallet running on the xDai sidechain. 
+We add a privacy layer to the burner wallet running on the xDai sidechain.
 
 ### Why is it important?
 
@@ -22,19 +43,19 @@ On a serious note, buffiDai wasn’t our primary motivation to build on top of t
 •    xDai chain takes the full functionality of Ethereum-based blockchains and can leverage all our open-source tools so that we could add our plasma to the existing POA Network’s tools and infrastructure.
 
 ### What will happen to the project after hackathon?
-We see poor usability as the main roadblock for cryptocurrency adoption, especially in not so techy developing countries where it is most needed. So we hope our solution will make micropayments private and safe. We are looking forward to further collaborate on it with MakerDAO and POA community. 
+We see poor usability as the main roadblock for cryptocurrency adoption, especially in not so techy developing countries where it is most needed. So we hope our solution will make micropayments private and safe. We are looking forward to further collaborate on it with MakerDAO and POA community.
 
-### Zero Knowledge Challenges accepted :sunglasses: 
+### Zero Knowledge Challenges accepted :sunglasses:
 
- 
-- **Ethereum Foundation** - zkSnark research and #BUIDL!  :closed_lock_with_key: 
 
-    - *Inspired by* [@barryWhiteHat](https://twitter.com/barrywhitehat/status/1096490137029095424?s=12) 
+- **Ethereum Foundation** - zkSnark research and #BUIDL!  :closed_lock_with_key:
+
+    - *Inspired by* [@barryWhiteHat](https://twitter.com/barrywhitehat/status/1096490137029095424?s=12)
 
     - https://kauri.io/article/3c7581f62c8b4babb78d3b133b415d60/v2/ethereum-foundation-sponsor-bounty-at-ethdenver2019!
 
-- **Maker** :dollar: 
-    - Confidential transaction based on Zero Knowledge For Maker :dollar: 
+- **Maker** :dollar:
+    - Confidential transaction based on Zero Knowledge For Maker :dollar:
     - Burner wallet improvment :arrow_double_up: https://kauri.io/article/1aa7db4858614e21b0446a03680b9846/v1/makerdao-sponsor-bounty-at-ethdenver-2019!
 
 - **POA** + Zero Knowledge = :heart:
@@ -44,12 +65,12 @@ We see poor usability as the main roadblock for cryptocurrency adoption, especia
 
 We are bringing privacy to [Burner wallet](https://xdai.io) (all functionality is impemented directly in Burner wallet fork) and DAI infrastructure with confidential micropayments. :sunglasses:
 
-### Steps: 
-- Open Burner wallet fork by link: zdai.io :iphone: 
-- Exchange xDAI to zDAI :currency_exchange: 
-- Send confidential private transaction :arrow_heading_up: 
+### Steps:
+- Open Burner wallet fork by link: zdai.io :iphone:
+- Exchange xDAI to zDAI :currency_exchange:
+- Send confidential private transaction :arrow_heading_up:
 - ... Take a cup of ☕️, while zkSNARK proof is calculating (*approx 1 minute*)
-- Profit!!! :tada: 
+- Profit!!! :tada:
 
 
 ### What we'he has done:
@@ -61,7 +82,7 @@ We are bringing privacy to [Burner wallet](https://xdai.io) (all functionality i
 - integration tests (Snarks + smart contracts) (link)
 
 - trusted setup for 3 snarks (link)
-    - deposit 
+    - deposit
     - Transfer
     - Exit
 
@@ -113,7 +134,7 @@ Example:
       owner: 835765502661709741278231205743827595544796746504n }
 ```
 
-input: 
+input:
 - `in_salt` - Double spend proof: slat is a random data generated with tx, to check unspent utxo further (spending utxo salt going to blacklist)
 - `all_in_hashes` - 10 inputs to hide real input. (if you do more entropy - you can send tx to yourself), or we can put more in the snark.
 - `our_hash`: 2 outputs - classic utxo outputs
