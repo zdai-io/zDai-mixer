@@ -129,6 +129,12 @@ Out balance example:
 
 ---
 
+## Our contract in POA Network Sokol.
+
+https://blockscout.com/poa/sokol/address/0x97c931f57e2b1582d629fb52e0aaa82b7a19c9f0/transactions 
+
+Here are just 3 transactions now: deposit, transfer and withdrawal. 
+
 ## Links:
 
 - ETHDenver Application: https://kauri.io/article/4c026927f1cc4ed29d5a0e95ba3afbf8/v1/zdai.io-confidential-transactions-on-zksnarks
