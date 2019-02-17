@@ -30,7 +30,7 @@ contract ZDai {
   using SafeMath for uint;
 
   mapping(address=>mapping(uint => bool)) public burnedSalt;
-  mapping(uint => bool) utxo;
+  mapping(uint => bool) public utxo;
 
   IVerifier verifier;
 
