@@ -105,6 +105,10 @@ We are bringing privacy to [Burner wallet](https://xdai.io) (all functionality i
 
 ![Sokol testnet transaction](https://github.com/snjax/zDai-mixer/blob/master/Demo/Sokol-test.png)
 
+### Burner fork with zDAI
+
+![Burner fork with zDAI](https://github.com/snjax/zDai-mixer/blob/master/Demo/BurnerWallet.png)
+
 
 ### TBD & Future steps:
 
