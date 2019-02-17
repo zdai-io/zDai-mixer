@@ -1,5 +1,5 @@
 # zDai.io - confidential Dai transactions on Burner wallet
-
+![Logo](https://github.com/snjax/zDai-mixer/blob/master/Demo/logo.png?raw=true)
 
   * [Idea](#idea)
     + [What problem do you solve?](#what-problem-do-you-solve)
