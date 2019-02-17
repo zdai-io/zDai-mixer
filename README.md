@@ -1,26 +1,125 @@
-# zDai - confidential Dai. xDai on Burner wallet
+# zDai.io - confidential Dai on Burner wallet
 
-Here is zk-SNARK based mixer for high anonymity transactions on the ethereum network.
+## Idea
 
-## Bring privacy to DAI! :sunglasses: 
+### What problem do you solve?
 
-### Zero Knowlage Challanges accepted:
 
-- Ethereum FOundation - zkSnark research and BUDL!  :closed_lock_with_key: 
+We add a privacy layer to the burner wallet running on the xDai sidechain. 
+
+### Why is it important?
+
+As (hopefully) everyone noticed, we are using here web wallets with buffiDai, which is pegged to Dai and deployed on the xDai sidechain from POA to buy food, merch, drinks, art, some unusual things(ask me about it after the presentations – I will be happy to share my dealer network)
+
+Our team loves [Burner](https://xdai.io/)'s usability and xDai's fast transaction times, but there is one problem we are bothered with: each vendor whom I pay can see the history of my transactions and as you already understand our buying patterns cry for a privacy layer to be added.
+
+Luckily we can solve this issue.
+
+### Why did we choose to work on the xDAI chain?
+
+On a serious note, buffiDai wasn’t our primary motivation to build on top of the xDAI chain. There are several reasons why it is an ideal marriage between SNARKs and everyday use cases:
+
+•    In xDAI, block times take 5 seconds. Transaction fees (gas costs) paid in DAI (=USD) are minimal, so it is cost-savvy and excellent for running our SNARKS verification (as opposed to doing it on Ethereum mainnet)
+•    xDai chain takes the full functionality of Ethereum-based blockchains and can leverage all our open-source tools so that we could add our plasma to the existing POA Network’s tools and infrastructure.
+
+### What will happen to the project after hackathon?
+We see poor usability as the main roadblock for cryptocurrency adoption, especially in not so techy developing countries where it is most needed. So we hope our solution will make micropayments private and safe. We are looking forward to further collaborate on it with MakerDAO and POA community. 
+
+### Zero Knowledge Challenges accepted :sunglasses: 
+
+ 
+- **Ethereum Foundation** - zkSnark research and #BUIDL!  :closed_lock_with_key: 
 
     - *Inspired by* [@barryWhiteHat](https://twitter.com/barrywhitehat/status/1096490137029095424?s=12) 
 
     - https://kauri.io/article/3c7581f62c8b4babb78d3b133b415d60/v2/ethereum-foundation-sponsor-bounty-at-ethdenver2019!
 
-- Maker
-    - Confidential transaction based on Zero Knowlage For Maker :dollar: 
+- **Maker** :dollar: 
+    - Confidential transaction based on Zero Knowledge For Maker :dollar: 
     - Burner wallet improvment :arrow_double_up: https://kauri.io/article/1aa7db4858614e21b0446a03680b9846/v1/makerdao-sponsor-bounty-at-ethdenver-2019!
 
-- POA + Zero Knowlage = :heart:
+- **POA** + Zero Knowledge = :heart:
     - https://kauri.io/article/3f2b37024c0e448293cd9099ad451f36/v2/poa-network-sponsor-bounty-at-ethdenver-2019!
 
 ## User-flow
 
-1. Open phone
-2. Connect go to zdai.io
-3. Profit!
+We are bringing privacy to [Burner wallet](https://xdai.io) (all functionality is impemented directly in Burner wallet fork) and DAI infrastructure with confidential micropayments. :sunglasses:
+
+### Steps: 
+- Open Burner wallet fork by link: zdai.io :iphone: 
+- Exchange xDAI to zDAI :currency_exchange: 
+- Send confidential private transaction :arrow_heading_up: 
+- ... Take a cup of ☕️, while zkSNARK proof is calculating (*approx 1 minute*)
+- Profit!!! :tada: 
+
+
+### What we'he has done:
+
+- Smart contract (link)
+    - utxo based model
+    - proover for snarks
+
+- integration tests (Snarks + smart contracts) (link)
+
+- trusted setup for 3 snarks (link)
+    - deposit 
+    - Transfer
+    - Exit
+
+- Backend with snarks prover
+
+- deploy script for the smart contract (R)
+
+- Fork burner
+
+- extra tool
+
+### TBD & Future steps:
+
+- Do **Trusted** setup (Sonic/zCash)
+- Server side - is just a temporary thing, if we build snarks on Belman - we can put in in the mobile device directly! It takes around 2-3 MB
+
+
+## Tech Scpec
+
+
+### Tests:
+
+    node cicruit/Transation_test.js
+
+## Tech spec:
+
+### Output:
+
+
+- `hash`: balance + salt + owner = pederson hash
+
+Example:
+
+```
+{ balance: 498617225799240496206585797313701272018n,
+      salt: 940710224613798208468773453036456n,
+      owner: 835765502661709741278231205743827595544796746504n }
+```
+
+input: 
+- `in_salt` - Double spend proof: slat is a random data generated with tx, to check unspent utxo further (spending utxo salt going to blacklist)
+- `all_in_hashes` - 10 inputs to hide real input. (if you do more entropy - you can send tx to yourself), or we can put more in the snark.
+- `our_hash`: 2 outputs - classic utxo outputs
+
+`in_selcetor`: pick correct input and output.
+
+Out balance example:
+
+   ```
+[ [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 ],
+     [ 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 ] ],
+```
+
+---
+
+## Links:
+
+- ETHDenver Application: https://kauri.io/article/4c026927f1cc4ed29d5a0e95ba3afbf8/v1/zdai.io-confidential-transactions-on-zksnarks
+- Backend (with SNARK prover), Solidity smart contract is placed there: https://github.com/snjax/zDai-mixer/tree/master/circuit
+- Burner wallet with improved functionality: https://github.com/poma/burner-wallet
