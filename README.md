@@ -1,4 +1,4 @@
-# zDai.io - confidential Dai transactions on Burner wallet
+# zDai.io - private Dai transactions on Burner wallet
 ![Logo](https://github.com/snjax/zDai-mixer/blob/master/Demo/logo.png?raw=true)
 
   * [Idea](#idea)
@@ -55,7 +55,7 @@ We see poor usability as the main roadblock for cryptocurrency adoption, especia
     - https://kauri.io/article/3c7581f62c8b4babb78d3b133b415d60/v2/ethereum-foundation-sponsor-bounty-at-ethdenver2019!
 
 - **Maker** :dollar:
-    - Confidential transaction based on Zero Knowledge For Maker :dollar:
+    - Private transaction based on Zero Knowledge For Maker :dollar:
     - Burner wallet improvment :arrow_double_up: https://kauri.io/article/1aa7db4858614e21b0446a03680b9846/v1/makerdao-sponsor-bounty-at-ethdenver-2019!
 
 - **POA** + Zero Knowledge = :heart:
