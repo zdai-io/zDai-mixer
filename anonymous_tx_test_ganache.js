@@ -73,7 +73,7 @@ let prover = spawn("node", ["prover.js"]);
 
 
 async function makeProof(name, input) {
-  console.log("Inputs: ", JSON.stringify([name, stringifyBigInts(input)]));
+  console.log("Inputs: ", [name, stringifyBigInts(input)]);
   prover.stdin.write(JSON.stringify([name, stringifyBigInts(input)]));
   const res = JSON.parse(await new Promise(resolve => prover.stdout.on('data', resolve)));
   await prover.kill();
@@ -183,6 +183,7 @@ async function makeDepositAndTransferAndWithdrawal(contract, account, account2, 
   console.log("Computed ...", [pi_a, pi_b, pi_c, pubinputs]);
   let newUTXO = serializeAndHashUTXO(transactions_out[0]);
   console.log(`New UTXO ${p256(newUTXO)} status: ${await contract.methods.utxo(p256(newUTXO)).call()}`);
+  console.log("Balance after transfer "+web3.utils.fromWei(await web3.eth.getBalance(account)));
 
   const withdrawal_input = {
     balance: transactions_out[0].balance,
