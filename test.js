@@ -1,12 +1,8 @@
 const Web3 = require("web3");
 const axios = require('axios');
-const fs = require("fs");
-const crypto = require("crypto");
 const bigInt = require("big-integer");
-const snarkjs = require("snarkjs");
 const utils = require("./src/utils.js");
 
-const rbigint = (nbytes) => snarkjs.bigInt.leBuff2int(crypto.randomBytes(nbytes));
 const addrToInt = (addr) => bigInt(addr.substr(2), "16").value;
 
 const web3 = new Web3(Web3.providers.HttpProvider('http://localhost:8545'));
@@ -20,10 +16,9 @@ const amount = web3.utils.toWei("1");
 //-------
 async function main() {
   // Deposit
-  let salt1 = rbigint(14);
   let depositUtxo = {
     balance: amount,
-    salt: salt1,
+    salt: utils.rbigint(14),
     owner: addrToInt(account1)
   };
 
@@ -38,10 +33,9 @@ async function main() {
 
 
   // Transaction
-  let salt2 = rbigint(14);
   let outputUtxo = {
     balance: amount,
-    salt: salt2,
+    salt: utils.rbigint(14),
     owner: addrToInt(account2)
   };
   let transaction = {

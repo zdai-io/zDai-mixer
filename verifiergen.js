@@ -1,33 +1,8 @@
 const fs = require("fs");
-const crypto = require("crypto");
-const {stringifyBigInts, unstringifyBigInts} = require("./src/utils.js");
-
-
-
-const fload = (fname) => unstringifyBigInts(JSON.parse(fs.readFileSync(fname, "utf8")));
-const fdump = (fname, data) => fs.writeFileSync(fname, JSON.stringify(stringifyBigInts(data)), "utf8");
-
-
-// function serializePK(vk_verifier_file) {
-//   vk_verifier=fload(vk_verifier_file);
-//   let data = `
-//         vk.alfa1 = Pairing.G1Point(${vk_verifier["vk_alfa_1"][0]}, ${vk_verifier["vk_alfa_1"][1]});
-//         vk.beta2 = Pairing.G2Point([${vk_verifier["vk_beta_2"][0][0]},${vk_verifier["vk_beta_2"][0][1]}], [${vk_verifier["vk_beta_2"][1][0]},${vk_verifier["vk_beta_2"][1][1]}]);
-//         vk.gamma2 = Pairing.G2Point([${vk_verifier["vk_gamma_2"][0][0]},${vk_verifier["vk_gamma_2"][0][1]}], [${vk_verifier["vk_gamma_2"][1][0]},${vk_verifier["vk_gamma_2"][1][1]}]);
-//         vk.delta2 = Pairing.G2Point([${vk_verifier["vk_delta_2"][0][0]},${vk_verifier["vk_delta_2"][0][1]}], [${vk_verifier["vk_delta_2"][1][0]},${vk_verifier["vk_delta_2"][1][1]}]);
-//         vk.IC = new Pairing.G1Point[](${vk_verifier["nPublic"]+1});`
-  
-//   for (let i=0; i<=vk_verifier["nPublic"]; i++){
-//     data+=`
-//         vk.IC[${i}] = Pairing.G1Point(${vk_verifier["IC"][i][0]}, ${vk_verifier["IC"][i][1]});`
-//   }
-//   return data;
-  
-// }
-
+const utils = require("./src/utils.js");
 
 function serializePK(vk_verifier_file) {
-    verificationKey=fload(vk_verifier_file);
+    let verificationKey = utils.fload(vk_verifier_file);
     let template = `
         vk.alfa1 = Pairing.G1Point(<%vk_alfa1%>);
         vk.beta2 = Pairing.G2Point(<%vk_beta2%>);
@@ -35,7 +10,7 @@ function serializePK(vk_verifier_file) {
         vk.delta2 = Pairing.G2Point(<%vk_delta2%>);
         vk.IC = new Pairing.G1Point[](<%vk_ic_length%>);
         <%vk_ic_pts%>
-    `
+    `;
     const vkalfa1_str = `${verificationKey.vk_alfa_1[0].toString()},`+
                         `${verificationKey.vk_alfa_1[1].toString()}`;
     template = template.replace("<%vk_alfa1%>", vkalfa1_str);
@@ -64,7 +39,7 @@ function serializePK(vk_verifier_file) {
     template = template.replace("<%vk_ic_length%>", verificationKey.IC.length.toString());
     let vi = "";
     for (let i=0; i<verificationKey.IC.length; i++) {
-        if (vi != "") vi = vi + "        ";
+        if (vi !== "") vi = vi + "        ";
         vi = vi + `vk.IC[${i}] = Pairing.G1Point(${verificationKey.IC[i][0].toString()},`+
                                                 `${verificationKey.IC[i][1].toString()});\n`;
     }
