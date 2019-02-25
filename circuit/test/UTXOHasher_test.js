@@ -1,17 +1,17 @@
 const circom = require("circom");
 const snarkjs = require("snarkjs");
 const groth = snarkjs["groth"];
-const pedersen = require("../circomlib/src/pedersenHash.js");
-const babyjub = require("../circomlib/src/babyjub.js");
+const pedersen = require("../../circomlib/src/pedersenHash.js");
+const babyjub = require("../../circomlib/src/babyjub.js");
 const fs = require("fs");
 const crypto = require("crypto");
-const {stringifyBigInts, unstringifyBigInts} = require("../src/stringifybigint.js");
+const {stringifyBigInts, unstringifyBigInts} = require("../../src/stringifybigint.js");
 
 const alt_bn_128_q = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
 
 const fload = (fname) => unstringifyBigInts(JSON.parse(fs.readFileSync(fname, "utf8")));
 const fdump = (fname, data) => fs.writeFileSync(fname, JSON.stringify(stringifyBigInts(data)), "utf8");
-const rbigint = (nbytes) => snarkjs.bigInt.leBuff2int(crypto.randomBytes(nbytes))
+const rbigint = (nbytes) => snarkjs.bigInt.leBuff2int(crypto.randomBytes(nbytes));
 
 
 const {tic, toc} = (function(){ 
@@ -28,7 +28,6 @@ const {tic, toc} = (function(){
 })();
 
 function serializeAndHashUTXO(tx) {
-  console.log(tx)
   const b = Buffer.concat([snarkjs.bigInt(tx.balance).leInt2Buff(30), snarkjs.bigInt(tx.salt).leInt2Buff(14), snarkjs.bigInt(tx.owner).leInt2Buff(20)]);
   const h = pedersen.hash(b);
   const hP = babyjub.unpackPoint(h);
@@ -46,50 +45,32 @@ function shuffle(a) {
 
 const main = async () => {
   try {
-   const circuit = new snarkjs.Circuit(fload("compiled/Withdrawal.json"));
-   const vk_proof = fload("compiled/Withdrawal_proving_key.json");
-   const vk_verifier = fload("compiled/Withdrawal_verification_key.json");
+    const circuitDef = await circom("circuit/test/UTXOHasher_test.circom");
+    const circuit = new snarkjs.Circuit(circuitDef);
 
-    // const circuitDef = await circom("circuit/Withdrawal.circom");
-    // fdump("compiled/Withdrawal.json", circuitDef);
-    // const circuit = new snarkjs.Circuit(circuitDef)
+    tic();
+    const setup = groth.setup(circuit);
+    toc();
 
-    // tic();
-    // const setup = groth.setup(circuit);
-    // toc();
-
-    // const vk_proof = setup.vk_proof;
-    // fdump("compiled/Withdrawal_proving_key.json", vk_proof);
-    // const vk_verifier = setup.vk_verifier;
-    // fdump("compiled/Withdrawal_verification_key.json", vk_verifier);
-
-    const withdrawal = {
-        balance: rbigint(16),
-        salt: rbigint(14),
-        owner: rbigint(20) 
-      };
-
-    const hash = serializeAndHashUTXO(withdrawal);
-    
     const input = {
-      balance: withdrawal.balance,
-      salt: withdrawal.salt,
-      owner: withdrawal.owner,
-      hash: hash,
+      balance: rbigint(16),
+      salt: rbigint(14),
+      owner: rbigint(20) 
     };
-    console.log("Input:")
-    console.log(input);
 
     tic();
     const witness = circuit.calculateWitness(input);
-    const {proof, publicSignals} = groth.genProof(vk_proof, witness);
+    const {proof, publicSignals} = groth.genProof(setup.vk_proof, witness);
     toc();
 
     console.log("Public signals:");
     console.log(publicSignals);
 
+    console.log("Checking manual manual:");
+    console.log(publicSignals[0] === serializeAndHashUTXO(input));
+
     tic();
-    if (groth.isValid(vk_verifier, proof, publicSignals)) {
+    if (groth.isValid(setup.vk_verifier, proof, publicSignals)) {
       console.log("The proof is valid");
     } else {
       console.log("The proof is not valid");

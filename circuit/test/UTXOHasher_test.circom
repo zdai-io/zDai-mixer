@@ -1,4 +1,4 @@
-include "UTXOHasher.circom";
+include "../UTXOHasher.circom";
 
 
 component main = UTXOHasher()

@@ -1,18 +1,18 @@
 const circom = require("circom");
 const snarkjs = require("snarkjs");
 const groth = snarkjs["groth"];
-const pedersen = require("../circomlib/src/pedersenHash.js");
-const babyjub = require("../circomlib/src/babyjub.js");
+const pedersen = require("../../circomlib/src/pedersenHash.js");
+const babyjub = require("../../circomlib/src/babyjub.js");
 const fs = require("fs");
 const crypto = require("crypto");
 
-const {stringifyBigInts, unstringifyBigInts} = require("../src/stringifybigint.js");
+const {stringifyBigInts, unstringifyBigInts} = require("../../src/stringifybigint.js");
 
 const alt_bn_128_q = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
 
 const fload = (fname) => unstringifyBigInts(JSON.parse(fs.readFileSync(fname, "utf8")));
 const fdump = (fname, data) => fs.writeFileSync(fname, JSON.stringify(stringifyBigInts(data)), "utf8");
-const rbigint = (nbytes) => snarkjs.bigInt.leBuff2int(crypto.randomBytes(nbytes))
+const rbigint = (nbytes) => snarkjs.bigInt.leBuff2int(crypto.randomBytes(nbytes));
 
 
 const {tic, toc} = (function(){ 
@@ -29,7 +29,7 @@ const {tic, toc} = (function(){
 })();
 
 function serializeAndHashUTXO(tx) {
-  console.log(tx)
+  console.log(tx);
   const b = Buffer.concat([snarkjs.bigInt(tx.balance).leInt2Buff(30), snarkjs.bigInt(tx.salt).leInt2Buff(14), snarkjs.bigInt(tx.owner).leInt2Buff(20)]);
   const h = pedersen.hash(b);
   const hP = babyjub.unpackPoint(h);
