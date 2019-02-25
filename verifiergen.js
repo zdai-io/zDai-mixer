@@ -1,6 +1,6 @@
 const fs = require("fs");
 const crypto = require("crypto");
-const {stringifyBigInts, unstringifyBigInts} = require("./src/stringifybigint.js");
+const {stringifyBigInts, unstringifyBigInts} = require("./src/utils.js");
 
 
 

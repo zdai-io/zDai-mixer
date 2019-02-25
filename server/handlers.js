@@ -5,20 +5,15 @@ const pedersen = require("../circomlib/src/pedersenHash.js");
 const babyjub = require("../circomlib/src/babyjub.js");
 const fs = require("fs");
 const crypto = require("crypto");
-const {stringifyBigInts, unstringifyBigInts} = require("../src/stringifybigint.js");
+const utils = require("../src/utils.js");
 
-const alt_bn_128_q = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
 
-let transationSnark, depositSnark, withdrawalSnark;
+let transactionSnark, depositSnark, withdrawalSnark;
 
-const fload = (fname) => unstringifyBigInts(JSON.parse(fs.readFileSync(fname, "utf8")));
-const fdump = (fname, data) => fs.writeFileSync(fname, JSON.stringify(stringifyBigInts(data)), "utf8");
-const rbigint = (nbytes) => snarkjs.bigInt.leBuff2int(crypto.randomBytes(nbytes))
-const stringify = (data) => JSON.stringify(stringifyBigInts(data));
-const unstringify = (data) => unstringifyBigInts(data);
+const stringify = (data) => JSON.stringify(utils.stringifyBigInts(data));
+const unstringify = (data) => utils.unstringifyBigInts(data);
 
 function serializeAndHashUTXO(tx) {
-  console.log(tx);
   const b = Buffer.concat([snarkjs.bigInt(tx.balance).leInt2Buff(30), snarkjs.bigInt(tx.salt).leInt2Buff(14), snarkjs.bigInt(tx.owner).leInt2Buff(20)]);
   const h = pedersen.hash(b);
   const hP = babyjub.unpackPoint(h);
@@ -33,48 +28,32 @@ function shuffle(a) {
   return a;
 }
 
-async function setupSnark(filename) {
-  const circuitDef = await circom("circuit/" + filename + ".circom");
-  const circuit = new snarkjs.Circuit(circuitDef)
-  const setup = groth.setup(circuit);
-  const prover = setup.vk_proof;
-  const verifier = setup.vk_verifier;
-
-  fdump("circuit/compiled/" + filename + ".json", circuitDef);
-  fdump("circuit/compiled/" + filename + "_proving_key.json", prover);
-  fdump("circuit/compiled/" + filename + "_verification_key.json", verifier);
-
-  console.log("Generated " + filename + " snark");
-
-  return { circuit, prover, verifier }
-}
-
 function loadSnark(filename) {
-  const circuit = new snarkjs.Circuit(fload("circuit/compiled/" + filename + ".json"));
-  const prover = fload("circuit/compiled/" + filename + "_proving_key.json");
-  const verifier = fload("circuit/compiled/" + filename + "_verification_key.json");
+  const circuit = new snarkjs.Circuit(utils.fload("circuit/compiled/" + filename + ".json"));
+  const prover = utils.fload("circuit/compiled/" + filename + "_proving_key.json");
+  const verifier = utils.fload("circuit/compiled/" + filename + "_verification_key.json");
 
   return { circuit, prover, verifier }
 }
 
 function proveSnark(snark, input) {
   const witness = snark.circuit.calculateWitness(input);
-  return groth.genProof(snark.prover, witness);
+  data = groth.genProof(snark.prover, witness);
+  return utils.p256({
+    pi_a: [data.proof.pi_a[0], data.proof.pi_a[1]],
+    pi_b: [[data.proof.pi_b[0][1], data.proof.pi_b[0][0]], [data.proof.pi_b[1][1], data.proof.pi_b[1][0]]],
+    pi_c: [data.proof.pi_c[0], data.proof.pi_c[1]],
+    publicSignals: data.publicSignals,
+  });
 }
 
 function verifySnark(snark, proof, publicSignals) {
-  console.log(proof, publicSignals)
+  console.log(proof, publicSignals);
   return groth.isValid(snark.verifier, proof, publicSignals);
 }
 
-function setup() {
-  transationSnark = setupSnark("Transaction");
-  depositSnark = setupSnark("Deposit");
-  withdrawalSnark = setupSnark("Withdrawal");
-}
-
 function load() {
-  transationSnark = loadSnark("Transaction");
+  transactionSnark = loadSnark("Transaction");
   depositSnark = loadSnark("Deposit");
   withdrawalSnark = loadSnark("Withdrawal");
 }
@@ -91,21 +70,39 @@ function proveWithdrawal(tx) {
 
 // TX: { owner, balance, salt }
 // fakeHashes: array(8)
-function proveTransaction(owner, txIn1, txIn2, txOut1, txOut2, fakeHashes) {
+function proveTransaction(txIn1, txIn2, txOut1, txOut2, fakeHashes) {
+  if (txOut2 == null) {
+    txOut2 = {
+      balance: 0,
+      salt: utils.rbigint(14),
+      owner: utils.rbigint(20),
+    }
+  }
+
   let hashes = fakeHashes;
   const hash0 = serializeAndHashUTXO(txIn1);
-  const hash1 = serializeAndHashUTXO(txIn2);
-  hashes.push(hash0, hash1);
-  hashes = shuffle(hashes);
+  hashes.push(hash0);
 
-  in_selector = [Array(10), Array(10)];
-  for(let i = 0; i < 10; i++){
-    in_selector[0][i] = hash0 == hashes[i] ? 1 : 0;
-    in_selector[1][i] = hash1 == hashes[i] ? 1 : 0;
+  let hash1;
+  if (txIn2 != null) {
+    hash1 = serializeAndHashUTXO(txIn2);
+    hashes.push(hash1);
+  } else {
+    txIn2 = {
+      balance: txIn1.balance,
+      salt: utils.rbigint(14),
+      owner: txIn1.owner,
+    };
+  }
+  hashes = shuffle(hashes);
+  let in_selector = [Array(10), Array(10)];
+  for (let i = 0; i < 10; i++) {
+    in_selector[0][i] = hash0 === hashes[i] ? 1 : 0;
+    in_selector[1][i] = (hash1 || hash0) === hashes[i] ? 1 : 0;
   }
   
   const input = {
-    owner,
+    owner: txIn1.owner,
     in_salt: [txIn1.salt, txIn2.salt],
     all_in_hashes: hashes,
     out_hash: [serializeAndHashUTXO(txOut1), serializeAndHashUTXO(txOut2)],
@@ -117,6 +114,8 @@ function proveTransaction(owner, txIn1, txIn2, txOut1, txOut2, fakeHashes) {
     out_owner: [txOut1.owner, txOut2.owner]
     
   };
+
+  console.log(input);
 
   return proveSnark(transactionSnark, input);
 }
@@ -134,7 +133,7 @@ function verifyTransaction(data) {
 }
 
 
-module.exports = { load, setup, proveDeposit, proveWithdrawal, proveTransaction, verifySnark, stringify, unstringify, verifyTransaction, verifyDeposit, verifyWithdrawal }
+module.exports = { load, proveDeposit, proveWithdrawal, proveTransaction, stringify, unstringify, verifyTransaction, verifyDeposit, verifyWithdrawal };
 
 
 

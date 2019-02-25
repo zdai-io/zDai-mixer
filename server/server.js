@@ -6,7 +6,9 @@ let app = express();
 app.use(bodyParser.json());
 
 async function proveDeposit(req, res) {
+	console.log(req.body);
 	let result = handlers.proveDeposit(handlers.unstringify(req.body));
+	console.log(result);
 	res.send(handlers.stringify(result));
 }
 
@@ -16,7 +18,10 @@ async function proveWithdrawal(req, res) {
 }
 
 function proveTransaction(req, res) {
-	let result = handlers.proveTransaction(handlers.unstringify(req.body));
+	console.log(req.body);
+	let data = handlers.unstringify(req.body);
+	let result = handlers.proveTransaction(data.txIn1, data.txIn2, data.txOut1, data.txOut2, data.fakeHashes);
+	console.log(result);
 	res.send(handlers.stringify(result));
 }
 

@@ -5,7 +5,7 @@ const pedersen = require("../../circomlib/src/pedersenHash.js");
 const babyjub = require("../../circomlib/src/babyjub.js");
 const fs = require("fs");
 const crypto = require("crypto");
-const {stringifyBigInts, unstringifyBigInts} = require("../../src/stringifybigint.js");
+const {stringifyBigInts, unstringifyBigInts} = require("../../src/utils.js");
 
 const alt_bn_128_q = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
 
