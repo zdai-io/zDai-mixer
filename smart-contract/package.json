@@ -51,6 +51,8 @@
   },
   "dependencies": {
     "dotenv": "^4.0.0",
-    "ethjs-abi": "^0.2.1"
+    "ethjs-abi": "^0.2.1",
+    "truffle-privatekey-provider": "^1.1.0",
+    "truffle-wallet-provider": "0.0.5"
   }
 }

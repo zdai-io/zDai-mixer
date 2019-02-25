@@ -1,6 +1,5 @@
 require('dotenv').config();
-
-
+const PrivateKeyProvider = require("truffle-privatekey-provider");
 const HDWalletProvider = require('truffle-hdwallet-provider');
 
 const providerWithMnemonic = (mnemonic, rpcEndpoint) =>
@@ -53,6 +52,15 @@ module.exports = {
       host: 'localhost',
       port: 8545,
       network_id: '*', // eslint-disable-line camelcase
+    },
+    poa: {
+      network_id: '*', 
+      provider: new PrivateKeyProvider(process.env.PRIVATE_KEY, "https://dai.poa.network/"),
+      // function() {
+      //   let WalletProvider = require("truffle-wallet-provider");
+      //   let wallet = require('ethereumjs-wallet').fromPrivateKey(Buffer.from(process.env.PRIVATE_KEY, 'hex'));
+      //   return new WalletProvider(wallet, "https://dai.poa.network/")
+      // },
     },
   },
 };
