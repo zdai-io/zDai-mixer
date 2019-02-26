@@ -90,6 +90,7 @@ async function main() {
   let data = await getProof('deposit', depositUtxo);
   await callMethod('deposit', data, {value: amount, from: account1}, privateKey1);
 
+  
   // Transaction
   let outputUtxo = {
     balance: amount,
@@ -102,6 +103,8 @@ async function main() {
     fakeHashes: await getRandomUtxosFromContract(9, utils.stringifyBigInts([utils.serializeAndHashUTXO(depositUtxo)])),
   };
   data = await getProof('transaction', transaction);
+  // todo: verify utxo hashes of public inputs to make sure that proving server
+  //  hasn't tampered with data before generating the proof
   await callMethod('transaction', data, {from: account1}, privateKey1);
 
 
