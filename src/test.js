@@ -1,17 +1,47 @@
 const Web3 = require("web3");
 const axios = require('axios');
 const bigInt = require("big-integer");
-const utils = require("./src/utils.js");
+const utils = require("./utils.js");
 
 const addrToInt = (addr) => bigInt(addr.substr(2), "16").value;
 
 const web3 = new Web3(Web3.providers.HttpProvider('http://localhost:8545'));
-const ozDai = require("./smart-contract/build/contracts/ZDai.json");
+const ozDai = require("../smart-contract/build/contracts/ZDai.json");
 const contract = new web3.eth.Contract(ozDai.abi, ozDai.networks["4447"].address);
 
 const account1 = "0xd00B71E95f1c85b856dD54Cb0ad22891eAFaA5de";
 const account2 = "0x5e1Cf484557D6F6664f9Bbe6c9E806ca472f8881";
 const amount = web3.utils.toWei("1");
+
+async function getRandomUtxosFromContract(count, exclude) {
+  let arr = [];
+  let events = await contract.getPastEvents('UtxoCreated', { fromBlock: 0, toBlock: 'latest' });
+  for(let utxo of events) {
+    arr.push(utxo.returnValues.hash);
+  }
+  events = await contract.getPastEvents('UtxoRemoved', { fromBlock: 0, toBlock: 'latest' });
+  for(let utxo of events) {
+    let hash = utxo.returnValues.hash;
+    let i = arr.indexOf(hash);
+    if (i !== -1) arr.splice(i, 1);
+  }
+  for(let hash of exclude) {
+    let i = arr.indexOf(hash);
+    if (i !== -1) arr.splice(i, 1);
+  }
+
+  let result = [];
+  for (let i = 0; i < count; i++) {
+    let val = arr[Math.floor(Math.random() * arr.length)];
+    let j = arr.indexOf(val);
+    if (j !== -1) arr.splice(j, 1);
+    result.push(val);
+  }
+
+  return result;
+}
+
+
 
 //-------
 async function main() {
@@ -32,6 +62,7 @@ async function main() {
   console.log("Balance after deposit: " + web3.utils.fromWei(await web3.eth.getBalance(account1)));
 
 
+
   // Transaction
   let outputUtxo = {
     balance: amount,
@@ -41,7 +72,7 @@ async function main() {
   let transaction = {
     txIn1: depositUtxo,
     txOut1: outputUtxo,
-    fakeHashes: [1, 1, 1, 1, 1, 1, 1, 1, 1],
+    fakeHashes: await getRandomUtxosFromContract(9, [utils.serializeAndHashUTXO(depositUtxo)]),
   };
   console.log("Getting proof for transaction:\n", utils.stringifyBigInts(transaction));
   resp = await axios.post('http://localhost:3000/prove-transaction', utils.stringifyBigInts(transaction));

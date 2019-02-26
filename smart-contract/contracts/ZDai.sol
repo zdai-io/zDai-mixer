@@ -34,9 +34,14 @@ contract ZDai {
 
   IVerifier verifier;
 
+  event UtxoCreated(uint hash);
+  event UtxoRemoved(uint hash);
+
   constructor(address _verifier) public {
     for (uint i = 1; i <= 10; i++) {
-      utxo[i] = true;
+      uint hash = uint(keccak256(abi.encodePacked(i)));
+      utxo[hash] = true;
+      emit UtxoCreated(hash);
     }
     verifier = IVerifier(_verifier);
   }
@@ -59,6 +64,8 @@ contract ZDai {
 
     utxo[input[13]] = true;
     utxo[input[14]] = true;
+    emit UtxoCreated(input[13]);
+    emit UtxoCreated(input[14]);
     burnedSalt[msg.sender][input[1]] = true;
     burnedSalt[msg.sender][input[2]] = true;
     return true;
@@ -75,6 +82,7 @@ contract ZDai {
     require(utxo[input[3]]);
     require(verifier.verifyWithdrawal(a, b, c, input));
     utxo[input[3]] = false;
+    emit UtxoRemoved(input[3]);
     burnedSalt[msg.sender][input[1]] = true;
     msg.sender.transfer(input[0]);
     return true;
@@ -91,6 +99,7 @@ contract ZDai {
     require(!utxo[input[2]]);
     require(verifier.verifyDeposit(a, b, c, input));
     utxo[input[2]] = true;
+    emit UtxoCreated(input[2]);
     return true;
   }
 

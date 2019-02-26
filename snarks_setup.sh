@@ -11,7 +11,7 @@ circom circuit/Withdrawal.circom -o "circuit/compiled/Withdrawal.json"
 snarkjs setup --protocol groth --pk "circuit/compiled/Withdrawal_proving_key.json" --vk "circuit/compiled/Withdrawal_verification_key.json" --circuit "circuit/compiled/Withdrawal.json"
 
 
-node verifiergen.js
+node src/verifiergen.js
 
 
 

@@ -16,6 +16,7 @@ function loadSnark(filename) {
 }
 
 function proveSnark(snark, input) {
+	console.log("proving snark for:\n", input);
 	const witness = snark.circuit.calculateWitness(input);
 	const data = groth.genProof(snark.prover, witness);
 	return utils.p256({
@@ -94,15 +95,15 @@ function proveTransaction(data) {
 }
 
 function sendProofResult(req, res, action) {
-	console.log("received data:", req.body);
+	console.log("received data:\n", req.body);
 	const data = utils.unstringifyBigInts(req.body);
 	const result = action(data);
-	console.log("proof:", result);
+	console.log("proof:\n", result);
 	res.send(JSON.stringify(utils.stringifyBigInts(result)));
 }
 
 function sendVerifyResult(req, res, snark) {
-	console.log("received data:", req.body);
+	console.log("received data:\n", req.body);
 	const data = utils.unstringifyBigInts(req.body);
 	const result = verifySnark(snark, data.proof, data.publicSignals);
 	res.send(result);

@@ -54,8 +54,8 @@ module.exports = {
       network_id: '*', // eslint-disable-line camelcase
     },
     poa: {
-      network_id: '*', 
-      provider: new PrivateKeyProvider(process.env.PRIVATE_KEY, "https://dai.poa.network/"),
+      // network_id: '*',
+      // provider: new PrivateKeyProvider(process.env.PRIVATE_KEY, "https://dai.poa.network/"),
       // function() {
       //   let WalletProvider = require("truffle-wallet-provider");
       //   let wallet = require('ethereumjs-wallet').fromPrivateKey(Buffer.from(process.env.PRIVATE_KEY, 'hex'));

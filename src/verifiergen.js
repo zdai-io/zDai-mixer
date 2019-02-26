@@ -1,5 +1,5 @@
 const fs = require("fs");
-const utils = require("./src/utils.js");
+const utils = require("./utils.js");
 
 function serializePK(vk_verifier_file) {
     let verificationKey = utils.fload(vk_verifier_file);
