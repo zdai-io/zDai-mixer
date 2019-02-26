@@ -80,23 +80,36 @@ async function callMethod(name, proof, data, privateKey) {
 }
 
 async function main() {
-  // Deposit
+  // === Deposit ===
+  // Generate an UTXO object for deposit with our owner and amount
+  // (which should be the same as sender and amount for deposit transaction on ethereum)
+  // `Salt` is a random secret part of our pedersen commitments, we should remember salts to
+  // have access to our UTXOs
   let depositUtxo = {
     balance: amount,
     salt: utils.rbigint(14),
     owner: addrToInt(account1)
   };
 
+  // Send the data to a snark prover server. Users can quickly roll out their own prover server from
+  // Docker container if they don't trust common one.
+  // Proving a transaction snark currently takes ~300Mb ram so we decided to offload this to a separate server while
+  // we are working on a more efficient implementation. But it can already be ran in browser if want to.
   let data = await getProof('deposit', depositUtxo);
+  // Submit resulting proof to smart contract
   await callMethod('deposit', data, {value: amount, from: account1}, privateKey1);
 
   
-  // Transaction
+  // === Transaction ===
+  // Generate a recipient output for our transaction.
+  // Transactions contain 2 outputs, if we submit only 1, the prover will generate a random 0-value second one for us.
   let outputUtxo = {
     balance: amount,
     salt: utils.rbigint(14),
     owner: addrToInt(account2)
   };
+  // The transaction that we want to submit. There are 1-2 real inputs and 8-9 fake ones (10 in total).
+  // Only snark knows which ones are real. We take existing UTXOs from smart contract to mix transaction graph.
   let transaction = {
     txIn1: depositUtxo,
     txOut1: outputUtxo,
@@ -108,7 +121,10 @@ async function main() {
   await callMethod('transaction', data, {from: account1}, privateKey1);
 
 
-  // Withdraw
+  // === Withdraw ===
+  // Withdrawal is similar to deposit except the salt is now public
+  // For more security withdrawal will be upgraded to work similarly to transactions
+  // (they will generate new UTXOs and exit from them, instead of exiting from existing UTXOs)
   data = await getProof('withdrawal', outputUtxo);
   console.log("Current balance:" + await getBalance(account2));
   await callMethod('withdrawal', data, {from: account2}, privateKey2);
