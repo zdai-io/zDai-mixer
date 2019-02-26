@@ -43,16 +43,12 @@ function unstringifyBigInts(o) {
     }
 }
 
-function p256_2(n) {
-    let nstr = n.toString(16);
-    while (nstr.length < 64) nstr = "0"+nstr;
-    nstr = "0x"+nstr;
-    return nstr;
-}
-
 function p256(o) {
     if ((typeof(o) == "bigint") || (o instanceof bigInt))  {
-        return p256_2(o);
+        let nstr = o.toString(16);
+        while (nstr.length < 64) nstr = "0"+nstr;
+        nstr = "0x"+nstr;
+        return nstr;
     } else if (Array.isArray(o)) {
         return o.map(p256);
     } else if (typeof o == "object") {

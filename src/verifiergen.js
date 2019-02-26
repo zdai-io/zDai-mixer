@@ -1,3 +1,5 @@
+// Generates snark verifier contract with hardcoded verification keys
+
 const fs = require("fs");
 const utils = require("./utils.js");
 
