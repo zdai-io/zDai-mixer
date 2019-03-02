@@ -1,5 +1,4 @@
 require('dotenv').config();
-const PrivateKeyProvider = require("truffle-privatekey-provider");
 const HDWalletProvider = require('truffle-hdwallet-provider');
 
 const providerWithMnemonic = (mnemonic, rpcEndpoint) =>
@@ -9,10 +8,6 @@ const infuraProvider = network => providerWithMnemonic(
   process.env.MNEMONIC || '',
   `https://${network}.infura.io/${process.env.INFURA_API_KEY}`
 );
-
-const ropstenProvider = process.env.SOLIDITY_COVERAGE
-  ? undefined
-  : infuraProvider('ropsten');
 
 module.exports = {
   compilers: {
@@ -32,10 +27,6 @@ module.exports = {
       port: 8545,
       network_id: '*', // eslint-disable-line camelcase
     },
-    ropsten: {
-      provider: ropstenProvider,
-      network_id: 3, // eslint-disable-line camelcase
-    },
     coverage: {
       host: 'localhost',
       network_id: '*', // eslint-disable-line camelcase
@@ -54,13 +45,9 @@ module.exports = {
       network_id: '*', // eslint-disable-line camelcase
     },
     poa: {
-      // network_id: '*',
-      // provider: new PrivateKeyProvider(process.env.PRIVATE_KEY, "https://dai.poa.network/"),
-      // function() {
-      //   let WalletProvider = require("truffle-wallet-provider");
-      //   let wallet = require('ethereumjs-wallet').fromPrivateKey(Buffer.from(process.env.PRIVATE_KEY, 'hex'));
-      //   return new WalletProvider(wallet, "https://dai.poa.network/")
-      // },
+      network_id: '*',
+      provider: providerWithMnemonic(process.env.MNEMONIC, "https://dai.poa.network/"),
+      gasPrice: 1e9,
     },
   },
 };
